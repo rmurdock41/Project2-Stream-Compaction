@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
+
+# Set CUDA toolkit path
+set(CUDA_TOOLKIT_ROOT_DIR "E:/cuda")
+
 project(cis5650_stream_compaction_test LANGUAGES CUDA CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -7,17 +11,22 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Enable C++11 for host code
+# Enable C++17 standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
-# Set a default build type if none was specified
+# Set default build type
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-    # Set the possible values of build type for cmake-gui
     SET_PROPERTY(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
+
+# Include CUDA headers
+include_directories("E:/cuda/include")
+
+# Find required packages
+find_package(CCCL REQUIRED)
 
 if(UNIX)
     include_directories("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
@@ -42,5 +51,16 @@ source_group(Headers FILES ${headers})
 source_group(Sources FILES ${sources})
 
 add_executable(${CMAKE_PROJECT_NAME} ${sources} ${headers})
-target_link_libraries(${CMAKE_PROJECT_NAME} stream_compaction)
+target_link_libraries(${CMAKE_PROJECT_NAME} stream_compaction CCCL::Thrust)
+
+# Configure CUDA architectures
+if(CMAKE_VERSION VERSION_LESS "3.23.0")
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES OFF)
+elseif(CMAKE_VERSION VERSION_LESS "3.24.0")
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES all-major)
+else()
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES native)
+endif()
+
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE "$<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:CUDA>>:-G>")
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${CMAKE_PROJECT_NAME})
