@@ -46,7 +46,7 @@ The **Radix Sort** implementation features dynamic bit optimization that process
 
 ### Block Size Optimization
 
-![](img\blocksize.png)
+<img src="img\blocksize.png" title="" alt="" width="677">
 
 Block sizes were optimized for minimal runtime through empirical testing:
 
