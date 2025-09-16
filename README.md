@@ -84,7 +84,7 @@ The **Work-Efficient implementation** performs consistently across all array siz
 
 **Radix Sort performance** correlates closely with Naive GPU scan timing because both algorithms perform multiple passes through the data with similar memory access patterns. 
 
-![](img\non_po2.png)
+<img src="img\non po2.png" title="" alt="" width="677">
 
 **Non-Power-of-Two Arrays (2^n - 3):** Work-efficient implementation shows superior performance on non-power-of-two arrays, achieving 40% better performance than power-of-two cases due to reduced padding overhead. This counterintuitive result occurs because the algorithm pads to the next power-of-two, and (2^n - 3) elements require less padding than 2^n elements, reducing memory bandwidth requirements and improving cache utilization.
 
